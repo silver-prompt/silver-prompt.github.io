@@ -23,7 +23,11 @@ staged|a file has been staged|![plus](assets/plus.png)|&#x271a;|+
 
 ## Example
 
-```sh
+```toml
+[[left]]
+name = "git"
+color.background = "green"
+color.foreground = "black"
 # "yellow" is the dirty color
-SILVER+=(git:green:black:yellow)
+args = ["yellow"]
 ```

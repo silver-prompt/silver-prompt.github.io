@@ -6,5 +6,11 @@ This module displays an environment variable.
 
 ```sh
 export date=$(date +%s)
-SILVER+=(env:black:white:date)
 ```
+
+```toml
+[[left]]
+name = "env"
+color.background = "black"
+color.foreground = "white"
+args = ["date"]

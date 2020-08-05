@@ -9,100 +9,133 @@ Silver detects your shell by looking on the shell process name.
 
 ### `lprint`, `rprint`
 
-These subcommands shouldn't be called by the user, but by the code `init`
-generates. They output the left and right prompt respectively.
+These subcommands shouldn't be called by the user, but by the code `init` generates.
+They output the left and right prompt respectively.
 
-## Environment variables
+## Config structure
 
-Every following variable with the exceptions of `$SILVER_LEFT` and `$SILVER_RIGHT`
-must be exported by the shell.
+### `left`, `right`
 
-### `SILVER_LEFT`, `SILVER_RIGHT`
-
-These variables are arrays of every module, in order, you want in your left or
-right prompt respectively. The elements in these arrays have three fields
-separated by colons. The first field is the module name, the second is the
-background color of the segment, and the third is the foreground color.
+These arrays contain every module, in order, you want in your left or right prompt
+respectively. The elements in these arrays are dictionaries with keys
+`name` - module name, `color` - dictionary with keys `background` and
+`foreground` - segment background and foreground, and `args` - array of additional
+parameters.
 
 For example, if you wanted the `dir` module with black text on a blue background,
-the element would be `dir:blue:black`.
+the element would be:
 
-### `SILVER_LEFT_SEPARATOR`, `SILVER_RIGHT_SEPARATOR`
+```toml
+name = "dir"
+color.background = "blue"
+color.foreground = "black"
+```
 
-These variables are the separators between segments in left and right prompt
-respectively. The default values are `\ue0b0` and `\ue0b2`.
+### `separator`
 
-Left prompt example with `\ue0b4`:
+This dictionary has keys `right` and `left`, which in turn have keys `thin` and `thick`.
+They are the separators between segments in left and right prompt respectively.
+Thick separators are placed between segments of different background color and
+thin - between segments of the same background color. The default values is
 
-![&#e0b4;](assets/e0b4.png)
+```toml
+[separator.left]
+thick = "\ue0b0"
+thin = "\ue0b1"
 
-Left prompt example with `\ue0bc`:
+[separator.right]
+thick = "\ue0b2"
+thin = "\ue0b3"
+```
 
-![&#e0bc;](assets/e0bc.png)
+Example with `separator.left.thick = "\ue0b4"`:<br/>
+![e0b4](e0b4.png)
 
-### `SILVER_THIN_LEFT_SEPARATOR`, `SILVER_THIN_RIGHT_SEPARATOR`
+Example with `separator.left.thick = "\ue0bc"`:<br/>
+![e0bc](e0bc.png)
 
-![&#e0b1;](assets/thin-separator.png)
+Thin separator example:<br/>
+![thin-separator](thin-separator.png)
 
-These variables are the thin separators between segments of the same background
-color. The default values are `\ue0b1` and `\ue0b3` respectively.
+### `icon_set`
 
-### `SILVER_ICONS`
-
-This variable is a preset of every icon. Valid values are `nerd`, `unicode`, or
-`ascii`. It defaults to `nerd`. For more information, see [Icons](#icons).
+This string is a preset of every icon. Valid values are `nerd`, `unicode`, or `ascii`.
+It defaults to `nerd`. For more information, see [Icons](#icons).
 
 ## Modules
 
-* [OS](os)
-* [Status](status)
-* [User](user)
-* [Directory](dir)
-* [Git](git)
-* [Command Time](cmdtime)
-* [Time](time)
-* [Environment Variable](env)
+* [OS](OS)
+* [Status](Status)
+* [User](User)
+* [Directory](Directory)
+* [Git](Git)
+* [Command Time](Command-Time)
+* [Time](Time)
+* [Environment Variable](Environment-Variable)
 * [virtualenv](virtualenv)
 * [Conda](conda)
 
 ## Icons
 
-Every icon is completely customizable through environment variables.
+Every icon is completely customizable through TOML.
 
-There are three presets for icons (which can be set through [`SILVER_ICONS`](#silver_icons)):
+There are three presets for icons (which can be set through [`icon_set`](#silver_icons)):
 
 * `nerd` uses icons from [Nerd Fonts](https://github.com/ryanoasis/nerd-fonts)
 * `unicode` uses Unicode (mostly emojis)
 * `ascii` uses only ASCII
 
-The default preset is `nerd`, but each individual icon can be set with
-environment variables. The environment variables to set is
-`SILVER_ICON_[icon name]`. For example, if you wanted to set the `failed` icon
-to "&#x2717;", you would set the environment variable `SILVER_ICON_FAILED` to `\u2717`.
+The default preset is `nerd`, but each individual icon can be set with TOML.
+The variable to set is `icons.[icon name]`. For example, if you wanted to set the
+`failed` icon to "&#x2717;", you would set `icons.failed` to `"\u2717"`.
 
 Every icon name can be found on the appropriate module wiki page.
 
 ## Example configurations
 
-* `~/.bashrc`/`~/.zshrc`:
+`~/.config/silver/silver.toml`:
 
-  ```sh
-  SILVER_LEFT=(dir:blue:black git:green:black)
-  SILVER_RIGHT=(status:white:black cmdtime:magenta:black shell:green:black)
-  source <(silver init)
-  ```
+```toml
+[[left]]
+name = "dir"
+color.background = "blue"
+color.foreground = "black"
 
-* `~/.config/fish/config.fish`:
+[[left]]
+name = "git"
+color.background = "green"
+color.foreground = "black"
 
-  ```fish
-  set SILVER_LEFT dir:blue:black git:green:black
-  set SILVER_RIGHT status:white:black cmdtime:magenta:black shell:green:black
-  silver init | source
-  ```
+[[right]]
+name = "status"
+color.background = "white"
+color.foreground = "black"
 
-* `~/.config/ion/initrc`:
+[[right]]
+name = "cmdtime"
+color.background = "magenta"
+color.foreground = "black"
 
-  ```sh
-  let SILVER_LEFT = [ status:black:white dir:blue:black git:green:black cmdtime:magenta:black ]
-  eval $(silver init)
-  ```
+[[right]]
+name = "shell"
+color.background = "green"
+color.foreground = "black"
+```
+
+`~/.bashrc`/`~/.zshrc`:
+
+```sh
+source <(silver init)
+```
+
+`~/.config/fish/config.fish`:
+
+```fish
+silver init | source
+```
+
+`~/.config/ion/initrc`:
+
+```sh
+eval $(silver init)
+```
